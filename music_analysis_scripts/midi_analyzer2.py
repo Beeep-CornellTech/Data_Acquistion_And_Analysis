@@ -13,6 +13,7 @@ def main(directory):
     file_names = os.listdir(directory)
     songs = {}
     unique_instruments = set()
+    instr_presences = {}
     for fname in file_names:
         try:
             with open(directory + '/' + fname, 'rb') as f:
@@ -21,6 +22,9 @@ def main(directory):
                 songs[fname] = {'instruments': []}
                 for instr in instruments:
                     instr_name = pretty_midi.program_to_instrument_name(instr.program) # Program number says what instrument, see doc above
+                    if instr_name not in instr_presences:
+                        instr_presences[instr_name] = set()
+                    instr_presences[instr_name].add(fname)
                     songs[fname]['instruments'].append(instr_name)
                     unique_instruments.add(instr_name)
         except Exception as err:
@@ -32,6 +36,9 @@ def main(directory):
     print(len(unique_instruments))
     with open(f'music_analysis_scripts/{directory}DATA.json', 'w') as f:
         f.write(json.dumps(songs))
+    data = sorted(list(map(lambda x: (x[0], len(x[1])), instr_presences.items())), key=lambda x: x[1])
+    for instr, presence in data:
+        print(instr, presence / len(songs))
 
 
 GUITAR = 'guitar'
