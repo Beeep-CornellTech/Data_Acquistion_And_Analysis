@@ -21,12 +21,12 @@ def main(directory):
                 instruments = midi.instruments
                 songs[fname] = {'instruments': []}
                 for instr in instruments:
-                    instr_name = pretty_midi.program_to_instrument_name(instr.program) # Program number says what instrument, see doc above
-                    if instr_name not in instr_presences:
-                        instr_presences[instr_name] = set()
-                    instr_presences[instr_name].add(fname)
-                    songs[fname]['instruments'].append(instr_name)
-                    unique_instruments.add(instr_name)
+                    instr_type = pretty_midi.program_to_instrument_name(instr.program) # Program number says what instrument, see doc above
+                    if instr_type not in instr_presences:
+                        instr_presences[instr_type] = set()
+                    instr_presences[instr_type].add(fname)
+                    songs[fname]['instruments'].append((instr_type, instr.progrm, instr.name)) # type and program store == info, name is used to map instruments in garadge band
+                    unique_instruments.add(instr_type)
         except Exception as err:
             print(f"Issue with {fname} :  {err}")
             continue
