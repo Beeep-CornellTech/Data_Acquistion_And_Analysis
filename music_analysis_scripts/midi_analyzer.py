@@ -59,10 +59,19 @@ if __name__ == '__main__':
         duration, songs = main(directory, cumulative_instrument_counts)
         total_durrations += duration
         total_songs += songs
+
     
     print('CUMULATIVE RESULTS')
     print(f'Total Durration in seconds: {total_durrations}')
-    instrument_data = sorted(list(map(lambda x: (x[0], len(x[1])), cumulative_instrument_counts.items())), key=lambda x: x[1])
-    for (i, j) in instrument_data:
-        print(i, j/total_songs)
+    instrument_data = sorted(list(map(lambda x: [x[0], len(x[1]) / total_songs], cumulative_instrument_counts.items())), key=lambda x: x[1])
+    for i in instrument_data:
+        print(i[0], i[1])
+
+    cumulative_data = {
+            'cumulative_duration_(secs)': total_durrations, 
+            'total_number_of_songs': total_songs, 
+            'instruments_and_percentage_of_songs_present_in': instrument_data
+            }
+    with open('music_analysis_scripts/cumulative_song_data.json', 'w') as f:
+        f.write(json.dumps(cumulative_data))
 
