@@ -1,43 +1,68 @@
-from music21.midi import MidiFile
-import os
+import pretty_midi
+import json
 import sys
+import os
 
 
-def process_von_dir(path):
-    midi_type_to_count = [0,0,0]
-    number_of_tracks_to_count = dict()
-    metric_v_time = [0,0]
+"""
+https://www.noterepeat.com/articles/how-to/213-midi-basics-common-terms-explained#H
+http://craffel.github.io/pretty-midi/
+"""
 
-    midi_files = os.listdir(path)
-    for i in range(len(midi_files)):
-        file_name = midi_files[i]
+def main(directory, cumulative_instrument_counts):
+    file_names = os.listdir(directory)
+    songs = {}
+    unique_instruments = set()
+    instr_presences = {}
+    total_song_durations = 0
+    for fname in file_names:
         try:
-            midi = MidiFile()
-            midi.open(filename=path + '/' + file_name)
-            midi.read()
-            midi_type_to_count[midi.format] += 1
-        except Exception as e:
-            print('Failiure at song %d, %s: %s' %(i, file_name, str(e)))
-            continue 
-        trk_count = len(midi.tracks)
-        if trk_count not in number_of_tracks_to_count:
-            number_of_tracks_to_count[trk_count] = 0
-        number_of_tracks_to_count[trk_count] += 1
+            with open(directory + '/' + fname, 'rb') as f:
+                midi = pretty_midi.PrettyMIDI(f)
+                total_song_durations += midi.get_end_time()
+                instruments = midi.instruments
+                songs[fname] = {'instruments': []}
+                for instr in instruments:
+                    instr_type = pretty_midi.program_to_instrument_name(instr.program) # Program number says what instrument, see doc above
+                    if instr_type not in instr_presences:
+                        instr_presences[instr_type] = set()
+                    if instr_type not in cumulative_instrument_counts:
+                        cumulative_instrument_counts[instr_type] = set()
+                    instr_presences[instr_type].add(fname)
+                    cumulative_instrument_counts[instr_type].add(fname)
+                    
+                    songs[fname]['instruments'].append([instr_type, int(instr.program), instr.name]) # type and program store == info, name is used to map instruments in garadge band
+                    unique_instruments.add(instr_type)
+        except Exception as err:
+            print(f"Issue with {fname} :  {err}")
+            continue
 
-        is_metric = midi.ticksPerSecond is None and midi.ticksPerQuarterNote is not None
-        assert(is_metric or midi.ticksPerSecond is not None and midi.ticksPerQuarterNote is None)
-        metric_v_time[is_metric] += 1
-        midi.close()
+    print(f'***UNIQUE INSTRUMENTS***\n{directory}')
+    print(f'Not Bad Songs: {len(songs)}')
+    print(unique_instruments)
+    print(len(unique_instruments))
+    with open(f'music_analysis_scripts/{directory}DATA.json', 'w') as f:
+        f.write(json.dumps(songs))
 
-    print('*********\nData For %s:' % path)
-    print('Type Counts:\t', midi_type_to_count)
-    print('timDev metric versus time based:\t', metric_v_time)
-    print('Number of tracks with corresponding counts:')
-    for track_counts in number_of_tracks_to_count:
-        print('%d\t%d' %(track_counts, number_of_tracks_to_count[track_counts]))
-    print('**************\n')
+    data = sorted(list(map(lambda x: (x[0], len(x[1])), instr_presences.items())), key=lambda x: x[1])
+    for instr, presence in data:
+        print(instr, presence / len(songs))
+    print()
+    return total_song_durations, len(songs)
 
 
-for directory in sys.argv[1:]:
-    process_von_dir(directory)
+if __name__ == '__main__':
+    cumulative_instrument_counts = {}
+    total_durrations = 0 # in seconds
+    total_songs = 0
+    for directory in sys.argv[1:]:
+        duration, songs = main(directory, cumulative_instrument_counts)
+        total_durrations += duration
+        total_songs += songs
+    
+    print('CUMULATIVE RESULTS')
+    print(f'Total Durration in seconds: {total_durrations}')
+    instrument_data = sorted(list(map(lambda x: (x[0], len(x[1])), cumulative_instrument_counts.items())), key=lambda x: x[1])
+    for (i, j) in instrument_data:
+        print(i, j/total_songs)
 
