@@ -18,6 +18,18 @@ GOOD_INSTRUMENTS = {
     'Electric Guitar (clean)':  27,
     "Acoustic Guitar (steel)": 25,
     }
+
+CHANNELS_TO_NEW_NAMES = {
+    30: 'DG',
+    0: 'AGP',
+    29: 'OG',
+    33: 'EBF',
+    34: 'EBP',
+    27: 'EGC',
+    25: 'AGS'
+}
+
+
 GOOD_INSTRUMENT_NUMBERS = GOOD_INSTRUMENTS.values()
 BASSES = [GOOD_INSTRUMENTS['Electric Bass (pick)'], GOOD_INSTRUMENTS['Electric Bass (finger)']]
 GUITARS = [GOOD_INSTRUMENTS['Distortion Guitar'], GOOD_INSTRUMENTS['Overdriven Guitar'], \
@@ -58,10 +70,16 @@ def replace_random(instruments):
 
 
 
+def change_instrument_names(instruments):
+    for instr in instruments:
+        instr.name = CHANNELS_TO_NEW_NAMES[instr.program]
+
+
 TRANSFORMATIONS = [('REMOVE', remove_extra_instruments), ('REPLACE_RANDOM', replace_random)]
 
 def transform_and_save(new_midi, transform, new_directory, f_name):
     transform(new_midi.instruments)
+    change_instrument_names(new_midi.instruments)
     new_midi.write(f'{new_directory}/{f_name}')
 
 def main(directory):
