@@ -39,6 +39,8 @@ def update_instrument_mins_and_max_pitches(directory, tags_to_min_max_pitches):
         if os.path.isdir(f):
             update_instrument_mins_and_max_pitches(f, tags_to_min_max_pitches)
         else:
+            if '.DS_Store' in f:
+                continue
             assert len(f) > 4 and '.tx1' == f[-4:]
             process_song(f, tags_to_min_max_pitches)
     print(f'DONE {directory}')

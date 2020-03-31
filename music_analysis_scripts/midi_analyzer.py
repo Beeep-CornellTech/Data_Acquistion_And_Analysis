@@ -41,6 +41,7 @@ def main(directory, cumulative_instrument_counts):
     print(f'Not Bad Songs: {len(songs)}')
     print(unique_instruments)
     print(len(unique_instruments))
+    directory = directory[directory.rfind('/')+1:]
     with open(f'music_analysis_scripts/{directory}DATA.json', 'w') as f:
         f.write(json.dumps(songs))
 
