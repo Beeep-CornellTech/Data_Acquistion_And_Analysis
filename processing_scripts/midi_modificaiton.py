@@ -22,26 +22,24 @@ http://craffel.github.io/pretty-midi/
 # maps instrument program to token representation in language, 
 # Used to replace track names with more useful values
 CHANNELS_TO_NEW_NAMES = {
-    19: 'RO',
+    65: 'AS',
+    11: 'VP',
     4: 'EP',
-    30: 'DG',
     0: 'AGP',
-    29: 'OG',
-    34: 'EB',
-    27: 'EGC',
-    25: 'AGS'
+    35: 'FB',
+    40: 'VO',
+    32: 'AB',
 }
 
 # Maps program numbers of instruments to use to instruments that can be replaced by it
 GOOD_INSTRUMENT_TO_ACCEPTABLES = {
-    19: set([50,42,41,109,20,53,9,80,85,81,87,31,120,35, 48, 49]),
-    4: set([5]),
-    30: set([]),
-    0: set([117, 112, 93, 91,95, 94, 118]),
-    29: set([]),
-    34: set([33, 36, 32]),
-    27: set([68, 45, 110, 69, 71, 86, 82, 26]),
-    25: set([40, 41, 22, 24, 106])
+    65: set([73]),
+    11: set([]),
+    4: set([]),
+    0: set([]),  # Based on Ananya meeting, not replacing things for drumbs [117, 112, 93, 91,95, 94, 118]),
+    35: set([]),
+    40: set([]),
+    32: set([]),
 }
 
 NOT_CONVERTABLE = -1000 # program number used when instrument is not in GOOD_INSTRUMENT_TO_ACCEPTABLES as key or value
@@ -112,7 +110,7 @@ def replace_shouvik(instruments):
     for i in range(len(instruments)):
         instr = instruments[i]
         new_program_number = get_shouvik_program_number(instr.program)
-        if new_program_number == NOT_CONVERTABLE:
+        if new_program_number == NOT_CONVERTABLE or instr.is_drum:
             hit_list.append(i)
         else:
            instr.program = new_program_number
