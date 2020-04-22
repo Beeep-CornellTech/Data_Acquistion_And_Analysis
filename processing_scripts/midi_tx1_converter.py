@@ -19,7 +19,7 @@ def convert_dir_to_trans(directory, transform, trans_name):
         with open(fp, read_mode) as f:
             data = f.read()
         translation = transform(data)
-        if len(translation.split('\n')) <= 1:
+        if trans_name == 'tx1' and len(translation.split('\n')) <= 1:
             continue
         with open(f"{out_dir}/{name[0:name.rfind('.')]}.{trans_name}", write_mode) as f:
             f.write(translation)
