@@ -22,24 +22,24 @@ http://craffel.github.io/pretty-midi/
 # maps instrument program to token representation in language, 
 # Used to replace track names with more useful values
 CHANNELS_TO_NEW_NAMES = {
-    65: 'AS',
-    11: 'VP',
-    4: 'EP',
     0: 'AGP',
-    35: 'FB',
-    40: 'VO',
     32: 'AB',
+    56: 'TP',
+    26: 'EGJ',
+    65: 'AS',
+    66: 'TS',
+    57: 'TB',
 }
 
 # Maps program numbers of instruments to use to instruments that can be replaced by it
 GOOD_INSTRUMENT_TO_ACCEPTABLES = {
-    65: set([73]),
-    11: set([]),
-    4: set([]),
-    0: set([]),  # Based on Ananya meeting, not replacing things for drumbs [117, 112, 93, 91,95, 94, 118]),
-    35: set([]),
-    40: set([]),
+    0: set([]),
     32: set([]),
+    56: set([]),
+    26: set([]),
+    65: set([]),
+    66: set([]),
+    57: set([]),
 }
 
 NOT_CONVERTABLE = -1000 # program number used when instrument is not in GOOD_INSTRUMENT_TO_ACCEPTABLES as key or value
